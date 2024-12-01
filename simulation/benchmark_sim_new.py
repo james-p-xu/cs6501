@@ -19,7 +19,8 @@ log = logging.getLogger(__name__)
 
 
 def assign_process_to_cpu(pid, cpus):
-    os.sched_setaffinity(pid, cpus)
+    pass
+    # os.sched_setaffinity(pid, cpus)
 
 
 def process_image_input(img_tensor):

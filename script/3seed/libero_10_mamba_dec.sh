@@ -1,5 +1,5 @@
 python run_benchmark.py  --config-name=benchmark_libero10 \
-            --multirun agents=oc_ddpm_mamba_only_agent \
+            --multirun agents=oc_ddpm_mamba_dec \
             agent_name=ddpm_mamba \
             task_suite=libero_10 \
             wandb.project=3_seed \

@@ -49,12 +49,12 @@ observation:
 #dataset location
 #dataset_path: /home/temp_store/wang/${task_suite}
 # cluster path:
-dataset_path: /hkfs/work/workspace/scratch/ll6323-david_dataset/data/libero/${task_suite}
+dataset_path: /home/wgj4gx/cs6501/project/MaIL/LIBERO/libero/datasets/${task_suite}
 
 # insert your own wandb here
 wandb:
-  entity: ???
-  project: ???
+  entity: wanted
+  project: mail
 
 group: ${task_suite}_${task_name}_${agent_name}_combination_based_on_current_obs
 
