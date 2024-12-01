@@ -11,9 +11,10 @@ from .base_sim import BaseSim
 from libero.libero.envs import *
 from libero.libero import benchmark
 from libero.libero.envs import OffScreenRenderEnv
+from libero.libero.utils.video_utils import VideoWriter
 import imgaug.parameters as iap
 from imgaug import augmenters as iaa
-
+from libero.libero.utils.time_utils import Timer
 
 log = logging.getLogger(__name__)
 
@@ -85,56 +86,60 @@ class MultiTaskSim(BaseSim):
             task_bddl_file = task_suite.get_task_bddl_file_path(context)
             init_states = task_suite.get_task_init_states(context)
 
-            env_args = {
-                "bddl_file_name": task_bddl_file,
-                "camera_heights": 128,
-                "camera_widths": 128
-            }
+            with Timer() as t, VideoWriter("/sfs/gpfs/tardis/home/kfh5tx/videos-vit/", save_video=True) as video_writer:            
+                env_args = {
+                    "bddl_file_name": task_bddl_file,
+                    "camera_heights": 128,
+                    "camera_widths": 128
+                }
 
-            env = OffScreenRenderEnv(**env_args)
+                env = OffScreenRenderEnv(**env_args)
 
-            agent.reset()
-            env.seed(self.seed)
-            env.reset()
-            obs = env.set_init_state(init_state=init_states[context_ind[i]])
+                agent.reset()
+                env.seed(self.seed)
+                env.reset()
+                obs = env.set_init_state(init_state=init_states[context_ind[i]])
 
-            # dummy actions all zeros for initial physics simulation
-            dummy = np.zeros(7)
-            dummy[-1] = -1.0  # set the last action to -1 to open the gripper
-            for _ in range(5):
-                obs, _, _, _ = env.step(dummy)
+                # dummy actions all zeros for initial physics simulation
+                dummy = np.zeros(7)
+                dummy[-1] = -1.0  # set the last action to -1 to open the gripper
+                for _ in range(5):
+                    obs, _, _, _ = env.step(dummy)
 
-            # multiprocessing simulation
-            for j in range(self.max_step_per_episode):
-                agentview_rgb = obs["agentview_image"]
+                # multiprocessing simulation
+                for j in range(self.max_step_per_episode):
+                    agentview_rgb = obs["agentview_image"]
 
-                # save_path = os.path.join("/home/i53/student/wang/OCIL/OCIL", f"{self.task_suite}", "images")
-                # img = env.sim.render(camera_name="frontview", width=1280, height=800)[..., ::-1]
-                # img = np.flip(img, axis=0)
-                # cv2.imwrite(os.path.join(save_path, f"agentview_{context}_{context_ind[i]}_{j}.png"), img)
+                    # save_path = os.path.join("/home/i53/student/wang/OCIL/OCIL", f"{self.task_suite}", "images")
+                    # img = env.sim.render(camera_name="frontview", width=1280, height=800)[..., ::-1]
+                    # img = np.flip(img, axis=0)
+                    # cv2.imwrite(os.path.join(save_path, f"agentview_{context}_{context_ind[i]}_{j}.png"), img)
 
 
-                if self.data_aug:
-                    agentview_rgb = self.aug(image=agentview_rgb)
+                    if self.data_aug:
+                        agentview_rgb = self.aug(image=agentview_rgb)
 
-                if self.use_eye_in_hand:
-                    eye_in_hand_rgb = obs["robot0_eye_in_hand_image"]
-                    state = (agentview_rgb, eye_in_hand_rgb)
-                else:
-                    state = agentview_rgb
+                    if self.use_eye_in_hand:
+                        eye_in_hand_rgb = obs["robot0_eye_in_hand_image"]
+                        state = (agentview_rgb, eye_in_hand_rgb)
+                    else:
+                        state = agentview_rgb
 
-                action = agent.predict(state)[0]
-                obs, r, done, _ = env.step(action)
+                    action = agent.predict(state)[0]
+                    obs, r, done, _ = env.step(action)
+                    video_writer.append_vector_obs(
+                        [obs], [done], camera_name="agentview_image"
+                    )
 
-                # if self.render:
-                # env.render()
+                    # if self.render:
+                    # env.render()
 
-                if r == 1:
-                    success[context, context_ind[i]] = r
-                    # env.close()
-                    break
+                    if r == 1:
+                        success[context, context_ind[i]] = r
+                        # env.close()
+                        break
 
-            env.close()
+                env.close()
 
     def test_agent(self, agent, cpu_set=None, epoch=None):
         logging.info("Start testing agent")
