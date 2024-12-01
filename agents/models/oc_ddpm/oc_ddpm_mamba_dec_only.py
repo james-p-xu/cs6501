@@ -9,7 +9,7 @@ from torch.nn import functional as F
 import logging
 from mamba_ssm import Mamba
 
-from .utils import SinusoidalPosEmb
+from .utils import get_positional_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -359,7 +359,7 @@ class DiffusionEncDec(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -580,7 +580,7 @@ class DiffusionEncDecLanguage(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),

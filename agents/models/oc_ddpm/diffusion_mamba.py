@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch import Tensor
 from omegaconf import DictConfig, OmegaConf
 from einops import rearrange, repeat
-from .utils import SinusoidalPosEmb
+from .utils import get_positional_embedding
 from mamba_ssm.ops.selective_scan_interface import selective_scan_fn, mamba_inner_fn
 
 try:
@@ -88,7 +88,7 @@ class DiffusionMamba(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -295,7 +295,7 @@ class DiffusionMambaV2(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -501,7 +501,7 @@ class DiffusionDecoderOnly(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -706,7 +706,7 @@ class DiffusionMambaOnly(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -907,7 +907,7 @@ class DiffusionMambaOnlyLanguage(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -1111,7 +1111,7 @@ class DiffusionMambaEncDec(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -1319,7 +1319,7 @@ class DiffusionMambaHistory(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -1524,7 +1524,7 @@ class DiffusionMambaHistoryV2(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -1733,7 +1733,7 @@ class DiffusionMambaEn(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -1940,7 +1940,7 @@ class DiffusionMambaEnTime(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -2151,7 +2151,7 @@ class DiffusionMambaEnV2(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -2362,7 +2362,7 @@ class DiffusionEncDecMamba(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),

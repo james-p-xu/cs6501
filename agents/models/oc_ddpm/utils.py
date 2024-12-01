@@ -22,6 +22,38 @@ class SinusoidalPosEmb(nn.Module):
         return emb
 
 
+class RotaryPosEmb(nn.Module):
+    def __init__(self, dim: int):
+        super().__init__()
+        assert dim % 2 == 0, "Embedding dimension must be even."
+        self.dim = dim
+
+        inv_freq = 1.0 / (10000 ** (torch.arange(0, dim, 2).float() / dim))
+        self.register_buffer('inv_freq', inv_freq)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        device = x.device
+        batch_size, seq_len = x.shape
+
+        t = torch.arange(seq_len, device=device, dtype=x.dtype).unsqueeze(1)  # Shape: [seq_len, 1]
+        freqs = t * self.inv_freq  # Shape: [seq_len, dim/2]
+        sinusoid = torch.cat((freqs.sin(), freqs.cos()), dim=-1)  # Shape: [seq_len, dim]
+
+        sinusoid = sinusoid.unsqueeze(0).expand(batch_size, -1, -1)  # Shape: [batch_size, seq_len, dim]
+
+        x_emb = x.unsqueeze(-1).expand(-1, -1, self.dim)  # Shape: [batch_size, seq_len, dim]
+
+        x1, x2 = torch.chunk(x_emb, 2, dim=-1)
+        sin_part, cos_part = torch.chunk(sinusoid, 2, dim=-1)
+        x_rotated = torch.cat((x1 * cos_part - x2 * sin_part, x1 * sin_part + x2 * cos_part), dim=-1)
+
+        return x_rotated
+
+def get_positional_embedding(dim: int):
+    return RotaryPosEmb(dim)
+    # return SinusoidalPosEmb(dim)
+
+
 def extract(a, t, x_shape):
     b, *_ = t.shape
     out = a.gather(-1, t)

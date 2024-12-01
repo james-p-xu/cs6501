@@ -21,7 +21,6 @@ class SinusoidalPosEmb(nn.Module):
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
 
-
 def extract(a, t, x_shape):
     b, *_ = t.shape
     out = a.gather(-1, t)

@@ -60,13 +60,17 @@ def main(cfg: DictConfig) -> None:
 
         agent.train_vision_agent()
 
-        if num_epoch in [39, 49, 59]:
-
+        if num_epoch in [30,40,50]:
             env_sim.test_agent(agent, assign_cpus, epoch=num_epoch)
+
+    print("SAVE FILE:")
+    print(agent.working_dir)
     agent.store_model_weights(agent.working_dir, sv_name=agent.last_model_name)
-    log.info("done")
+    log.info("Done for realsies")
 
     wandb.finish()
+    exit()
+
 
 
 if __name__ == "__main__":

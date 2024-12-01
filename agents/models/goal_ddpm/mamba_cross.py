@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch import Tensor
 from omegaconf import DictConfig, OmegaConf
 from einops import rearrange, repeat
-from .utils import SinusoidalPosEmb
+from .utils import get_positional_embedding
 from mamba_ssm.ops.selective_scan_interface import selective_scan_fn, mamba_inner_fn
 
 try:
@@ -91,7 +91,7 @@ class DiffusionMambaCross(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
@@ -307,7 +307,7 @@ class DiffusionMambaCrossV2(nn.Module):
 
         # we need another embedding for the time
         self.time_emb = nn.Sequential(
-            SinusoidalPosEmb(embed_dim),
+            get_positional_embedding(embed_dim),
             nn.Linear(embed_dim, embed_dim * 2),
             nn.Mish(),
             nn.Linear(embed_dim * 2, embed_dim),
