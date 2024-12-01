@@ -2,6 +2,40 @@ import torch
 import torchvision
 from typing import List, Callable
 from robomimic.models.obs_core import VisualCore
+from torchvision import models
+from torch import nn
+from torchvision import transforms
+from torchvision.models.feature_extraction import get_graph_node_names, create_feature_extractor
+from transformers import ViTImageProcessor, ViTModel
+
+class VIT(nn.Module):
+    def __init__(self, input_shape: List[int], output_size: int):
+        super().__init__()
+        self.preprocess = nn.Sequential(
+            transforms.Resize(224)
+        )
+        self.vit = ViTModel.from_pretrained('facebook/dino-vits8', device_map = 'cuda')
+        self.vit.requires_grad_(False)
+
+        hidden_dim=512
+
+        self.fc1 = nn.Linear(in_features=384, out_features=hidden_dim)
+        self.fc2 = nn.Linear(in_features=hidden_dim, out_features=output_size)
+
+    def forward(self, x):
+        x = x.to(device='cuda')
+        x = self.preprocess(x)
+        dino_embedding = self.vit(pixel_values=x)
+        dino_last_hidden_states = vit.last_hidden_state[:,0]
+
+        hidden = nn.functional.relu(self.fc1(dino_last_hidden_states))
+        logits = self.fc2(hidden)
+        
+        return logits
+
+def get_vision_model(input_shape: List[int], output_size: int):
+    return VIT(input_shape, output_size)
+    # return get_resnet(input_shape, output_size)
 
 
 def get_resnet(input_shape: List[int], output_size: int):
@@ -33,7 +67,7 @@ def get_resnet(input_shape: List[int], output_size: int):
     return resnet
 
 
-# def _get_resnet(name, weights=None, **kwargs):
+# def _get_old_resnet(name, weights=None, **kwargs):
 #     """
 #     name: resnet18, resnet34, resnet50
 #     weights: "IMAGENET1K_V1", "r3m"

@@ -84,7 +84,7 @@ model:
     #      shape: [10]
 
     rgb_model:
-      _target_: agents.module.vision.get_model.get_resnet
+      _target_: agents.module.vision.get_model.get_vision_model
       input_shape: [3, 128, 128]
       output_size: 128
     resize_shape: null
