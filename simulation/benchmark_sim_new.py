@@ -15,9 +15,11 @@ from libero.libero.utils.video_utils import VideoWriter
 import imgaug.parameters as iap
 from imgaug import augmenters as iaa
 from libero.libero.utils.time_utils import Timer
+import os
 
 log = logging.getLogger(__name__)
 
+video_idx = 0
 
 def assign_process_to_cpu(pid, cpus):
     pass
@@ -69,12 +71,14 @@ class MultiTaskSim(BaseSim):
         self.success_rate = 0
 
     def eval_agent(self, agent, contexts, context_ind, success, pid, cpu_set):
+        global video_idx
         print(os.getpid(), cpu_set)
         assign_process_to_cpu(os.getpid(), cpu_set)
 
         # env_ids = []
 
         print(contexts)
+        video_path = "/sfs/gpfs/tardis/home/kfh5tx/videos/"
 
         for i, context in enumerate(contexts):
 
@@ -86,7 +90,7 @@ class MultiTaskSim(BaseSim):
             task_bddl_file = task_suite.get_task_bddl_file_path(context)
             init_states = task_suite.get_task_init_states(context)
 
-            with Timer() as t, VideoWriter("/sfs/gpfs/tardis/home/kfh5tx/videos-vit/", save_video=True) as video_writer:            
+            with Timer() as t, VideoWriter(video_path, save_video=True) as video_writer:            
                 env_args = {
                     "bddl_file_name": task_bddl_file,
                     "camera_heights": 128,
@@ -140,6 +144,9 @@ class MultiTaskSim(BaseSim):
                         break
 
                 env.close()
+            
+            os.rename(video_path + "video.mp4", video_path + f"{video_idx}.mp4")
+            video_idx += 1
 
     def test_agent(self, agent, cpu_set=None, epoch=None):
         logging.info("Start testing agent")
