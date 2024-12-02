@@ -49,7 +49,7 @@ observation:
 #dataset location
 #dataset_path: /home/temp_store/wang/${task_suite}
 # cluster path:
-dataset_path: /sfs/gpfs/tardis/home/wgj4gx/cs6501/project/MaIL/LIBERO/libero/datasets/${task_suite}
+dataset_path: /sfs/gpfs/tardis/home/kfh5tx/LIBERO/libero/libero/../datasets/${task_suite}
 
 # insert your own wandb here
 wandb:

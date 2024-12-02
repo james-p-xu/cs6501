@@ -32,8 +32,8 @@ class VIT(nn.Module):
         return logits
 
 def get_vision_model(input_shape: List[int], output_size: int):
-    return VIT(input_shape, output_size)
-    # return get_resnet(input_shape, output_size)
+    # return VIT(input_shape, output_size)
+    return get_resnet(input_shape, output_size)
 
 
 def get_resnet(input_shape: List[int], output_size: int):
