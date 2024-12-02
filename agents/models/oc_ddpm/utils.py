@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import mail_cfg
 
 
 class SinusoidalPosEmb(nn.Module):
@@ -50,8 +51,9 @@ class RotaryPosEmb(nn.Module):
         return x_rotated
 
 def get_positional_embedding(dim: int):
-    return RotaryPosEmb(dim)
-    # return SinusoidalPosEmb(dim)
+    if mail_cfg.USE_ROPE:
+        return RotaryPosEmb(dim)
+    return SinusoidalPosEmb(dim)
 
 
 def extract(a, t, x_shape):

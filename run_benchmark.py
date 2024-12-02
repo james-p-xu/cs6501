@@ -9,6 +9,7 @@ import wandb
 from omegaconf import DictConfig, OmegaConf
 import torch
 from tqdm import tqdm
+import mail_cfg
 
 from agents.utils import sim_framework_path
 
@@ -57,16 +58,15 @@ def main(cfg: DictConfig) -> None:
     assign_cpus = cpu_set[current_num * cfg.n_cores:current_num * cfg.n_cores + cfg.n_cores]
 
     for num_epoch in tqdm(range(agent.epoch)):
-
         agent.train_vision_agent()
 
-        if num_epoch in [30,40,50]:
+        if num_epoch in mail_cfg.EVAL_EPOCHS:
             env_sim.test_agent(agent, assign_cpus, epoch=num_epoch)
 
-    print("SAVE FILE:")
-    print(agent.working_dir)
-    agent.store_model_weights(agent.working_dir, sv_name=agent.last_model_name)
-    log.info("Done for realsies")
+        if (num_epoch+1) % mail_cfg.CHECKPOINT_EVERY == 0:
+            agent.store_model_weights(mail_cfg.CHECKPOINTING_DIR, sv_name="model_dict.pth")
+
+    agent.store_model_weights(mail_cfg.CHECKPOINTING_DIR, sv_name="model_dict.pth")
 
     wandb.finish()
     exit()

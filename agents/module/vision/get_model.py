@@ -7,6 +7,7 @@ from torch import nn
 from torchvision import transforms
 from torchvision.models.feature_extraction import get_graph_node_names, create_feature_extractor
 from transformers import ViTImageProcessor, ViTModel
+import mail_cfg
 
 class VIT(nn.Module):
     def __init__(self, input_shape: List[int], output_size: int):
@@ -32,7 +33,8 @@ class VIT(nn.Module):
         return logits
 
 def get_vision_model(input_shape: List[int], output_size: int):
-    # return VIT(input_shape, output_size)
+    if mail_cfg.USE_VIT:
+        return VIT(input_shape, output_size)
     return get_resnet(input_shape, output_size)
 
 

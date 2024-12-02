@@ -292,6 +292,9 @@ class DiffusionAgent(BaseAgent):
             # log.info("Epoch {}: Mean train loss is {}".format(num_epoch, batch_loss.item()))
 
         log.info("training done")
+
+        should_optimizer_step = not should_optimizer_step
+
         self.store_model_weights(self.working_dir, sv_name=self.last_model_name)
 
     def train_step(self, state: torch.Tensor, action: torch.Tensor, goal: Optional[torch.Tensor] = None) -> float:

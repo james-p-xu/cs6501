@@ -16,6 +16,7 @@ import imgaug.parameters as iap
 from imgaug import augmenters as iaa
 from libero.libero.utils.time_utils import Timer
 import os
+import mail_cfg
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ class MultiTaskSim(BaseSim):
         # env_ids = []
 
         print(contexts)
-        video_path = "/sfs/gpfs/tardis/home/kfh5tx/videos/"
+        video_path = mail_cfg.VIDEO_DIR
 
         for i, context in enumerate(contexts):
 
