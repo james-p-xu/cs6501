@@ -20,6 +20,7 @@ from agents.models.oc_ddpm.ema import ExponentialMovingAverage
 # A logger for this file
 log = logging.getLogger(__name__)
 
+should_optimizer_step = False
 
 class DiffusionPolicy(nn.Module):
     def __init__(self, model: DictConfig, obs_encoder: DictConfig, visual_input: bool = True, device: str = "cpu"):
@@ -265,7 +266,8 @@ class DiffusionAgent(BaseAgent):
         # for num_epoch in tqdm(range(self.epoch)):
         #
         #     train_loss = []
-
+        global should_optimizer_step
+        
         for data in self.train_dataloader:
             bp_imgs, inhand_imgs, action, mask = data
 
@@ -292,6 +294,9 @@ class DiffusionAgent(BaseAgent):
             # log.info("Epoch {}: Mean train loss is {}".format(num_epoch, batch_loss.item()))
 
         log.info("training done")
+
+        should_optimizer_step = not should_optimizer_step
+
         self.store_model_weights(self.working_dir, sv_name=self.last_model_name)
 
     def train_step(self, state: torch.Tensor, action: torch.Tensor, goal: Optional[torch.Tensor] = None) -> float:
@@ -313,11 +318,14 @@ class DiffusionAgent(BaseAgent):
         # Compute the loss.
         loss = self.model(state, goal, action=action, if_train=True)
         # Before the backward pass, zero all the network gradients
-        self.optimizer.zero_grad()
+        if not should_optimizer_step:
+            self.optimizer.zero_grad()
         # Backward pass: compute gradient of the loss with respect to parameters
         loss.backward()
         # Calling the step function to update the parameters
-        self.optimizer.step()
+
+        if should_optimizer_step:
+            self.optimizer.step()
 
         self.steps += 1
 
